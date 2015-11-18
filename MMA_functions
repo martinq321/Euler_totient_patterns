@@ -1,0 +1,60 @@
+(*Preliminary functions*)
+hash[n_] := Times @@ Prime@Range@n
+comph[n_, h_] := {n/EulerPhi[n], (h - n)/EulerPhi[(h - n)]}
+absDiffcomph[n_, h_] := Abs[#[[1]] - #[[2]] &@comph[n, h]]
+
+(*Bressoud's Computational number theory package*)
+"http://www.macalester.edu/~bressoud/books/CNT.m"
+
+(*call CNT package*)
+Quiet@<< "CNT`"
+
+(*Plot 1*)
+With[{h = hash@4}, 
+ Show[#/EulerPhi@# & /@ Range@h // ListPlot, 
+  With[{aa = DeleteCases[PhiInverse@Range@EulerPhi[h], {}]}, 
+   ListLinePlot[{#, #/EulerPhi[#]} & /@ aa[[#]] & /@ Range@Length@aa, 
+    PlotStyle -> 
+     ConstantArray[{ColorData[97, "ColorList"][[1]], Thin}, 
+      Length@aa], Axes -> False]]]]
+
+(*Plot 2*)
+Show[#/EulerPhi@# & /@ Range@210 // ListPlot, 
+ Graphics[{ColorData[97, "ColorList"][[1]], Line@# & /@
+    Join[Table[{{{EulerPhi[#], 1}, {#, #/EulerPhi[#]}} &@# &@t,
+       {{#, #/EulerPhi[#]}, {210 - EulerPhi[t], 1}} &@# &@(210 - 
+          t)}, {t, {30, 60, 90, 42, 105, 18, 
+        105}}], {{{EulerPhi[#], 1}, {#, #/EulerPhi[#]}} &@# &@210,
+      {{#, #/EulerPhi[#]}, {1, 210/EulerPhi[210]}} &@# &@(210 - 
+         105)}]}]]
+
+(*Plot 3*)
+With[{h = hash@6}, 
+ Quiet@ListPlot[absDiffcomph[#, h] & /@ Range[h/2], PlotRange -> All]]
+
+(*Plot 4a,b*)
+With[{h = hash@6}, 
+  Transpose@{Prime@Range@PrimePi@h, 
+    absDiffcomph[#, h] & /@ 
+     Select[Range@h, PrimeQ@# == True &]}] // ListPlot
+With[{h = hash@6 - 2}, 
+  Transpose@{Prime@Range@PrimePi@h, 
+    absDiffcomph[#, h] & /@ 
+     Select[Range@h, PrimeQ@# == True &]}] // ListPlot
+
+(*Plot 5a,b*)
+With[{h = hash@8}, 
+ Quiet@ListPlot[absDiffcomph[#, h] & /@ PhiInverse@EulerPhi[h], 
+   PlotRange -> All]]
+With[{h = hash@8 - 2}, 
+ Quiet@ListPlot[absDiffcomph[#, h] & /@ PhiInverse@EulerPhi[h], 
+   PlotRange -> All]]
+
+(*Plot 6*)
+With[{h = hash@5}, 
+ Show[#/EulerPhi[#] & /@ Range@h // ListPlot, 
+  Show[Plot[
+      Piecewise[{{# + (1)/(x/(#^E)) - (1)/(h/2), 
+         0 < x < h/2}, {# + (1)/((h - x)/(#^E)) - (1)/(h/2), 
+         h/2 < x < h}}], {x, 0, h}, PlotRange -> All, 
+      PlotStyle -> {Red, Thin}] & /@ {1, 1.5, 2, 3}]]]
